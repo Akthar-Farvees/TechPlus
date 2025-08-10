@@ -1,0 +1,124 @@
+Project: TechPulse — AI-powered Tech News & Discussion Platform
+1 — Short summary (one-liner for the AI builder)
+A modern, mobile-first tech news aggregator that pulls trending stories (TechCrunch, The Verge, Hacker News, RSS), displays them in a fast, clean feed with category filters and search, and provides an AI-powered chat attached to each article for summarization, Q&A, context, comparisons and discussion.
+________________________________________
+2 — High-level goals (mapped to PDF)
+•	Solve: centralize trending tech news + enable intelligent discussion.
+•	Deliver a responsive, intuitive news feed and a context-aware AI chat tied to articles.  
+•	Provide trending analytics, sentiment, bookmarking and real-time updates where possible.  
+________________________________________
+3 — Target users & user flows (short)
+•	Users: tech professionals & enthusiasts.
+•	Primary flows:
+1.	Open app → see trending feed (by category).
+2.	Open article preview → read or open full article.
+3.	Open AI Chat for that article → ask to summarize / ask questions / compare articles.
+4.	Save/bookmark, share, or view related stories and sentiment analytics.
+________________________________________
+4 — Core features (detailed) — implement every required item from the PDF
+Each item below includes a short acceptance criterion so your AI builder or dev knows it's complete.
+A. News Aggregation & Display (PDF §3)
+•	Sources: fetch from RSS/APIs for TechCrunch, The Verge, Hacker News, and configurable sources.
+Acceptance: New items appear in feed within configured refresh interval.
+•	Article Cards: title, source, timestamp, snippet (50–120 chars), thumbnail, category tags, save/bookmark button.
+Acceptance: Cards are responsive and accessible.
+•	Category Filtering: categories: AI/ML, Startups, Cybersecurity, Mobile, Web3, Others; multi-select filters.
+Acceptance: Selecting a category filters feed instantly.
+•	Search: full-text search across titles and cleaned article content. Highlight query terms in results.
+Acceptance: Relevant results within 300ms for small dataset.
+•	Bookmark/Save: per-user saved list accessible offline.
+Acceptance: Saved articles persist between sessions.
+B. AI-Powered News Chat (PDF §3)
+•	Chat per article: open chat panel bound to an article context.
+Acceptance: Chat knows which article it’s discussing.
+•	AI capabilities:
+o	Summarize article on demand (short/medium/long).
+o	Answer specific questions referencing article content.
+o	Provide context/background on tech topics.
+o	Compare two or more related stories (side-by-side analysis).
+Acceptance: Accurate, context-aware responses referencing article excerpts.
+•	Chat pulls article content: the assistant can quote or reference cleaned article text and metadata in replies.
+Acceptance: Chat responses include inline references or “source” snippets.
+•	Conversation memory: short context window (current conversation + article excerpt + last N messages).
+Acceptance: Chat keeps context for followups within the session.
+C. Smart Features (PDF §3)
+•	Trending topics dashboard: shows top keywords, topic heatmap, daily counts.
+Acceptance: Dashboard updates daily (or real-time if implemented).
+•	Related articles suggestions: based on keyword overlap, embeddings, or similarity score.
+Acceptance: Each article shows 3–5 related items.
+•	Sentiment analysis: positive/negative/neutral per article and aggregated per topic.
+Acceptance: Sentiment label + confidence shown.
+•	Time filters: today / this week / this month.
+Acceptance: Filtering modifies feed accordingly.
+________________________________________
+5 — UI / UX specification (PDF §4)
+Goal: Clean, Feedly × Discord aesthetic — fast browsing, simple readable UI.
+Layout & visual system
+•	Header: logo left, search center, user profile/bookmarks right, theme toggle (light/dark).
+•	Left column (desktop): category list + trending topics mini dashboard.
+•	Center: news feed (infinite scroll + pagination fallback).
+•	Right panel: article detail / AI Chat (toggleable). On mobile, article + chat become stacked views.
+•	Article modal / detail page: full text with meta, sentiment badge, related articles strip, save & share actions, open chat button.
+UX priorities
+•	Fast transitions between reading and chat: chat slides in from right; article remains visible behind.
+•	Readability: large line height, 16–18px base font, card spacing, clear CTAs.
+•	Accessibility: keyboard navigation, ARIA labels, high contrast.
+•	Mobile responsive breakpoints: 480px, 768px, 1024px.
+Interaction details
+•	Chat UX: message bubbles, assistant “typing” indicator, ability to quote an article paragraph into the chat, message actions (pin, copy, show sources).
+•	Dark/Light mode: toggle persists in local user settings.
+________________________________________
+6 — Technical stack & services (PDF §5)
+•	Frontend: React + Next.js (SSR for SEO) or Vue + Nuxt. Use Tailwind for styling.
+•	Backend: Node.js (Express / Fastify) or Next.js API routes; store data in PostgreSQL or MongoDB.
+•	AI: OpenAI API (GPT-4.1/GPT-4o) or Anthropic Claude for chat and summarization.
+•	News ingest: RSS + provider APIs + optional ethical scraping (via server worker with rate limits).
+•	Real-time: WebSockets via Socket.io or Pusher for live feed updates. (Bonus)
+•	Deployment: Vercel for Next.js frontend + serverless API, or Netlify + serverless functions. DB on PlanetScale / Supabase / AWS RDS.
+•	Cursor: use Cursor for AI-assisted dev tasks and prototypes as required. (PDF §5) 
+________________________________________
+7 — Data & system design (APIs, DB models, flows)
+Key entities (DB)
+•	User: id, name, email, passwordHash, prefs (theme, categories), createdAt.
+•	Article: id, title, source, url, content (cleaned), snippet, publishedAt, fetchedAt, categories, thumbnail, sentiment, embedding.
+•	Bookmark: userId, articleId, savedAt.
+•	ChatConversation: id, userId, articleId, messages[], createdAt, lastActiveAt.
+•	TrendingRecord: date, topic, count.
+API endpoints (example)
+•	GET /api/articles?category=&q=&time=
+•	GET /api/articles/:id → returns article + related + sentiment
+•	POST /api/bookmarks {articleId}
+•	GET /api/bookmarks
+•	POST /api/chat/start {articleId, userId}
+•	POST /api/chat/message {conversationId, message}
+•	GET /api/trending?range=week
+•	POST /api/webhook/rss (ingest)
+Content processing pipeline
+1.	Fetch RSS/HTML → fetcher worker.
+2.	Extract article body (readability/lib) → clean (strip ads, remove scripts).
+3.	Generate embedding + sentiment + summary candidate.
+4.	Store article with metadata and embeddings for similarity.
+5.	Index in search engine (Elasticsearch / Meilisearch / Supabase full-text).
+________________________________________
+8 — AI chat design & prompt engineering (critical)
+•	Article context block: include article title + 3–4 paragraph excerpts (or compressed embedding summary) when calling the model to avoid token overload.
+•	System prompt (example):
+You are TechPulse Assistant, an expert in technology news. Use the provided article excerpts and metadata to answer user questions concisely and cite the article where appropriate. When asked for comparisons, include related data points and potential industry impact.
+•	Summarization modes: short (1–2 lines), medium (3–4 lines), long (detailed paragraph + bullets).
+•	Follow-up handling: maintain last N messages + article context. Use retrieval augmented generation (RAG) to fetch relevant paragraphs by similarity if user asks deep questions.
+•	Safety & hallucination mitigation: always add source: [article_url or excerpt id] when the assistant asserts factual claims about the article. If uncertain, respond with “I don’t have that evidence in the provided article; would you like me to search other sources?”
+________________________________________
+9 — Performance, scaling & rate limiting (PDF §6)
+•	Caching: cache fetched RSS items for X minutes; cache model responses for repeated Qs.
+•	Embeddings & search: precompute article embeddings; use approximate nearest neighbor (ANN) (e.g., Pinecone, Weaviate) for related articles.
+•	Rate limits:
+o	News fetch frequency per source (configurable, e.g., every 5–30 min).
+o	Limit concurrent AI calls per user (e.g., 1–2) and implement server-side queuing.
+o	Exponential backoff for provider errors.
+•	Cost control: provide summarized prompt + article excerpts instead of full article to reduce model tokens.
+________________________________________
+10 — Security & compliance
+•	Use HTTPS everywhere, secure auth (JWT with refresh tokens or server sessions), OWASP controls.
+•	Respect robots.txt and site terms for scraping; prefer RSS/APIs.
+•	Store API keys in secrets manager; rotate periodically.
+
