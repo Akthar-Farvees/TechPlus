@@ -310,19 +310,22 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
           </div>
         </div>
         
-        <div className="w-24 h-24">
+        <div className="w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0">
           {article.thumbnail ? (
             <img
               src={article.thumbnail}
               alt={article.title}
               className="w-full h-full object-cover rounded-lg"
               data-testid={`img-thumbnail-${article.id}`}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
-              <i className="fas fa-newspaper text-muted-foreground"></i>
-            </div>
-          )}
+          ) : null}
+          <div className={`w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center ${article.thumbnail ? 'hidden' : ''}`}>
+            <i className="fas fa-newspaper text-primary text-sm sm:text-xl"></i>
+          </div>
         </div>
       </div>
     </article>

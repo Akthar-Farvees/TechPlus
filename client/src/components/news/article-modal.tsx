@@ -48,18 +48,6 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
       });
     },
     onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/auth/google";
-        }, 500);
-        return;
-      }
-      
       toast({
         title: "Error",
         description: `Failed to ${article?.isBookmarked ? 'remove' : 'add'} bookmark`,
@@ -150,13 +138,13 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden sm:mobile-safe-padding" data-testid="modal-article">
+      <DialogContent className="w-[95vw] max-w-4xl h-[95vh] max-h-[95vh] p-0 overflow-hidden" data-testid="modal-article">
         <DialogHeader className="sr-only">
           <DialogTitle>{currentArticle.title}</DialogTitle>
         </DialogHeader>
         {/* Article Image */}
         {currentArticle.thumbnail && (
-          <div className="w-full h-48 sm:h-64 md:h-72 overflow-hidden bg-muted">
+          <div className="w-full h-32 sm:h-48 md:h-64 overflow-hidden bg-muted flex-shrink-0">
             <img
               src={currentArticle.thumbnail}
               alt={currentArticle.title}
@@ -171,49 +159,50 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
         )}
 
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-border bg-card">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
+        <div className="p-3 sm:p-4 md:p-6 border-b border-border bg-card flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-2">
                 <span className="font-medium text-tech-blue" data-testid="text-modal-source">
                   {currentArticle.source?.name || 'Unknown Source'}
                 </span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span data-testid="text-modal-time">{getTimeAgo()}</span>
                 <Badge className={`text-xs ${getCategoryColor()}`} data-testid="badge-modal-category">
                   {currentArticle.category ? currentArticle.category.replace('_', '/') : 'others'}
                 </Badge>
                 {currentArticle.sentiment && (
-                  <span className={`flex items-center text-sm ${getSentimentColor()}`} data-testid="text-modal-sentiment">
+                  <span className={`flex items-center text-xs sm:text-sm ${getSentimentColor()}`} data-testid="text-modal-sentiment">
                     <i className={`${getSentimentIcon()} mr-1`}></i>
-                    {currentArticle.sentiment.charAt(0).toUpperCase() + currentArticle.sentiment.slice(1)}
+                    <span className="hidden sm:inline">{currentArticle.sentiment.charAt(0).toUpperCase() + currentArticle.sentiment.slice(1)}</span>
+                    <span className="sm:hidden">{currentArticle.sentiment}</span>
                   </span>
                 )}
               </div>
               
-              <h1 className="text-2xl font-bold text-foreground leading-tight" data-testid="text-modal-title">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground leading-tight" data-testid="text-modal-title">
                 {currentArticle.title}
               </h1>
               
               {currentArticle.viewCount > 0 && (
-                <div className="mt-2 text-sm text-muted-foreground">
+                <div className="mt-2 text-xs sm:text-sm text-muted-foreground">
                   <i className="fas fa-eye mr-1"></i>
                   {currentArticle.viewCount} views
                 </div>
               )}
             </div>
             
-            <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onChatOpen(currentArticle)}
-                className="text-primary hover:text-primary-foreground border-primary hover:bg-primary/10 text-xs sm:text-sm touch-manipulation"
+                className="text-primary hover:text-primary-foreground border-primary hover:bg-primary/10 text-xs h-8 px-2 sm:h-9 sm:px-3"
                 data-testid="button-modal-chat"
                 aria-label="Chat with AI about this article"
               >
-                <i className="fas fa-robot mr-1 sm:mr-0"></i>
-                <span className="hidden xs:inline sm:hidden md:inline">AI Chat</span>
+                <i className="fas fa-robot mr-1"></i>
+                <span className="hidden sm:inline">AI</span>
               </Button>
               
               <Button
@@ -221,12 +210,12 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
                 size="sm"
                 onClick={() => bookmarkMutation.mutate()}
                 disabled={bookmarkMutation.isPending}
-                className={`${currentArticle.isBookmarked ? 'text-primary border-primary bg-primary/10' : 'text-muted-foreground'} hover:text-primary hover:border-primary text-xs sm:text-sm touch-manipulation`}
+                className={`${currentArticle.isBookmarked ? 'text-primary border-primary bg-primary/10' : 'text-muted-foreground'} hover:text-primary hover:border-primary text-xs h-8 px-2 sm:h-9 sm:px-3`}
                 data-testid="button-modal-bookmark"
                 aria-label={currentArticle.isBookmarked ? "Remove bookmark" : "Add bookmark"}
               >
-                <i className={`${currentArticle.isBookmarked ? 'fas' : 'far'} fa-bookmark mr-1 sm:mr-0`}></i>
-                <span className="hidden xs:inline sm:hidden md:inline">
+                <i className={`${currentArticle.isBookmarked ? 'fas' : 'far'} fa-bookmark mr-1`}></i>
+                <span className="hidden sm:inline">
                   {currentArticle.isBookmarked ? 'Saved' : 'Save'}
                 </span>
               </Button>
@@ -235,41 +224,41 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
                 variant="outline"
                 size="icon"
                 onClick={handleShare}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-9 sm:h-9"
                 data-testid="button-modal-share"
                 aria-label="Share article"
               >
-                <i className="fas fa-share"></i>
+                <i className="fas fa-share text-xs"></i>
               </Button>
               
               <Button
                 variant="outline"
                 size="icon"
                 onClick={handleOpenOriginal}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-9 sm:h-9"
                 data-testid="button-modal-external"
                 aria-label="Open original article"
               >
-                <i className="fas fa-external-link-alt"></i>
+                <i className="fas fa-external-link-alt text-xs"></i>
               </Button>
               
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground w-8 h-8 sm:w-9 sm:h-9"
                 data-testid="button-modal-close"
                 aria-label="Close modal"
               >
-                <i className="fas fa-times"></i>
+                <i className="fas fa-times text-xs"></i>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <ScrollArea className="flex-1">
-          <div className="p-6">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-3 sm:p-4 md:p-6">
             {isLoading ? (
               <div className="space-y-4">
                 <div className="h-4 bg-muted rounded animate-pulse"></div>
@@ -277,13 +266,21 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
                 <div className="h-4 bg-muted rounded animate-pulse w-1/2"></div>
               </div>
             ) : (
-              <div className="prose dark:prose-invert max-w-none" data-testid="content-modal-article">
+              <div className="prose prose-sm sm:prose dark:prose-invert max-w-none" data-testid="content-modal-article">
+                {currentArticle.snippet && (
+                  <div className="mb-6 p-4 bg-muted/50 rounded-lg border-l-4 border-primary">
+                    <p className="text-muted-foreground italic text-sm sm:text-base">
+                      {currentArticle.snippet}
+                    </p>
+                  </div>
+                )}
+                
                 {currentArticle.content ? (
                   formatContent(currentArticle.content)
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    <i className="fas fa-file-alt text-4xl mb-4"></i>
-                    <p>Full content not available. Please visit the original article.</p>
+                    <i className="fas fa-file-alt text-2xl sm:text-4xl mb-4"></i>
+                    <p className="text-sm sm:text-base">Full content not available. Please visit the original article.</p>
                     <Button
                       variant="outline"
                       onClick={handleOpenOriginal}
@@ -304,13 +301,13 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
         {currentArticle.relatedArticles && currentArticle.relatedArticles.length > 0 && (
           <>
             <Separator />
-            <div className="p-6 bg-muted/30">
-              <h3 className="font-semibold mb-4 text-foreground">Related Articles</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-3 sm:p-4 md:p-6 bg-muted/30 flex-shrink-0">
+              <h3 className="font-semibold mb-3 sm:mb-4 text-foreground text-sm sm:text-base">Related Articles</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {currentArticle.relatedArticles.slice(0, 3).map((relatedArticle) => (
                   <div
                     key={relatedArticle.id}
-                    className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-card border border-border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => {
                       onClose();
                       // Would need to trigger article selection in parent
