@@ -80,18 +80,23 @@ export default function Header({ onSearch, isConnected }: HeaderProps) {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-tech-blue rounded-lg flex items-center justify-center">
-              <i className="fas fa-bolt text-white text-sm sm:text-lg"></i>
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-lg sm:text-xl font-bold text-foreground">TechPulse</h1>
-              {isConnected && (
-                <span className="text-xs text-tech-green flex items-center">
-                  <i className="fas fa-circle text-xs mr-1"></i>
-                  Live
-                </span>
-              )}
-            </div>
+            <button 
+              onClick={() => window.location.href = '/news'}
+              className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-tech-blue rounded-lg flex items-center justify-center">
+                <i className="fas fa-bolt text-white text-sm sm:text-lg"></i>
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-lg sm:text-xl font-bold text-foreground">TechPulse</h1>
+                {isConnected && (
+                  <span className="text-xs text-tech-green flex items-center">
+                    <i className="fas fa-circle text-xs mr-1"></i>
+                    Live
+                  </span>
+                )}
+              </div>
+            </button>
           </div>
 
           {/* Search Bar */}

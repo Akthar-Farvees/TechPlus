@@ -1,241 +1,165 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from "@/hooks/useTheme";
 
 export default function Landing() {
   const { theme, toggleTheme } = useTheme();
 
-  const handleGetStarted = () => {
-    window.location.href = "/app";
+  // Auto-redirect to news feed after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.location.href = "/news";
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleEnterApp = () => {
+    window.location.href = "/news";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-tech-blue rounded-lg flex items-center justify-center">
-                <i className="fas fa-bolt text-white text-lg"></i>
-              </div>
-              <h1 className="text-xl font-bold text-foreground">TechPulse</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="rounded-lg"
-                data-testid="button-theme-toggle"
-                aria-label="Toggle dark mode"
-              >
-                {theme === 'dark' ? (
-                  <i className="fas fa-sun text-yellow-400"></i>
-                ) : (
-                  <i className="fas fa-moon text-slate-600"></i>
-                )}
-              </Button>
-              
-              <Button onClick={handleGetStarted} data-testid="button-get-started">
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+      {/* Header with theme toggle */}
+      <header className="absolute top-4 right-4 z-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className="rounded-lg w-10 h-10 bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background"
+          aria-label="Toggle dark mode"
+        >
+          {theme === 'dark' ? (
+            <i className="fas fa-sun text-yellow-400"></i>
+          ) : (
+            <i className="fas fa-moon text-muted-foreground"></i>
+          )}
+        </Button>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="space-y-8">
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-4xl mx-auto text-center space-y-8">
+          {/* Hero Section */}
+          <div className="space-y-6">
+            {/* Logo and Brand */}
+            <div className="flex items-center justify-center space-x-4 mb-8">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+                <i className="fas fa-bolt text-white text-2xl"></i>
+              </div>
+              <div className="text-left">
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+                  TechPulse
+                </h1>
+                <p className="text-lg text-primary font-medium">
+                  AI-Powered Tech News
+                </p>
+              </div>
+            </div>
+
+            {/* Tagline */}
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground">
-                AI-Powered Tech News &{' '}
-                <span className="bg-gradient-to-r from-tech-blue to-tech-green bg-clip-text text-transparent">
-                  Discussion Platform
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Stay ahead of the tech curve with intelligent news aggregation, AI-powered summaries, 
-                and context-aware discussions. Your personalized gateway to what matters in technology.
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground leading-tight">
+                Stay Ahead of the Tech Curve
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Get the latest tech news, trending topics, and AI-powered insights 
+                from top sources like TechCrunch, The Verge, and Hacker News — all in one place.
               </p>
             </div>
+          </div>
 
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:bg-card/90 transition-colors">
+              <CardContent className="p-6 text-center space-y-3">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto">
+                  <i className="fas fa-newspaper text-blue-600 dark:text-blue-400 text-xl"></i>
+                </div>
+                <h3 className="font-semibold text-foreground">Real-time News</h3>
+                <p className="text-sm text-muted-foreground">
+                  Live updates from trusted tech publications
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:bg-card/90 transition-colors">
+              <CardContent className="p-6 text-center space-y-3">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto">
+                  <i className="fas fa-robot text-green-600 dark:text-green-400 text-xl"></i>
+                </div>
+                <h3 className="font-semibold text-foreground">AI Chat</h3>
+                <p className="text-sm text-muted-foreground">
+                  Discuss articles with AI for deeper insights
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:bg-card/90 transition-colors">
+              <CardContent className="p-6 text-center space-y-3">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto">
+                  <i className="fas fa-chart-line text-purple-600 dark:text-purple-400 text-xl"></i>
+                </div>
+                <h3 className="font-semibold text-foreground">Analytics</h3>
+                <p className="text-sm text-muted-foreground">
+                  Trending topics and sentiment analysis
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CTA Section */}
+          <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" onClick={handleGetStarted} className="px-8 py-3" data-testid="button-hero-get-started">
+              <Button
+                onClick={handleEnterApp}
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-lg font-medium rounded-xl shadow-lg"
+              >
                 <i className="fas fa-rocket mr-2"></i>
-                Start Exploring
+                Enter TechPulse
               </Button>
-              <Button variant="outline" size="lg" className="px-8 py-3" data-testid="button-learn-more">
-                <i className="fas fa-play mr-2"></i>
-                Learn More
-              </Button>
+              
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <i className="fas fa-clock"></i>
+                <span>Auto-redirecting in 3 seconds...</span>
+              </div>
+            </div>
+
+            {/* Source badges */}
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Powered by leading tech publications
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center space-x-1">
+                  <i className="fas fa-rss text-orange-500"></i>
+                  <span>TechCrunch</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <i className="fas fa-rss text-purple-500"></i>
+                  <span>The Verge</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <i className="fas fa-rss text-orange-600"></i>
+                  <span>Hacker News</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <i className="fas fa-rss text-red-500"></i>
+                  <span>Ars Technica</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Why TechPulse?
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Combining the best of tech journalism with cutting-edge AI to deliver 
-              a superior news experience.
+          {/* Footer */}
+          <div className="pt-8 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              Experience the future of tech news with AI-powered insights and real-time updates
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-tech-blue/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-robot text-tech-blue text-xl"></i>
-                </div>
-                <CardTitle>AI-Powered Chat</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Chat with articles using advanced AI. Get summaries, ask questions, 
-                  and discover insights you might have missed.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-tech-green/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-chart-trending-up text-tech-green text-xl"></i>
-                </div>
-                <CardTitle>Trending Intelligence</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Real-time analysis of trending topics, sentiment tracking, 
-                  and predictive insights about tech developments.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-filter text-purple-500 text-xl"></i>
-                </div>
-                <CardTitle>Smart Filtering</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Category-based filtering, personalized recommendations, 
-                  and intelligent content curation tailored to your interests.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-rss text-orange-500 text-xl"></i>
-                </div>
-                <CardTitle>Multi-Source Aggregation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Curated content from TechCrunch, The Verge, Hacker News, 
-                  and other top tech publications in one place.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-pink-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-bookmark text-pink-500 text-xl"></i>
-                </div>
-                <CardTitle>Personal Library</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Save articles, maintain reading lists, and access your 
-                  bookmarked content offline whenever you need it.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <i className="fas fa-mobile-alt text-cyan-500 text-xl"></i>
-                </div>
-                <CardTitle>Mobile-First Design</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Optimized for all devices with a responsive design that 
-                  works seamlessly on desktop, tablet, and mobile.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <Card className="border-border bg-gradient-to-r from-tech-blue/5 to-tech-green/5">
-            <CardContent className="p-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Ready to Transform Your Tech News Experience?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join thousands of tech professionals who stay informed with AI-powered insights.
-              </p>
-              <Button size="lg" onClick={handleGetStarted} className="px-8 py-3" data-testid="button-cta-get-started">
-                <i className="fas fa-bolt mr-2"></i>
-                Get Started Now
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-tech-blue rounded-lg flex items-center justify-center">
-                <i className="fas fa-bolt text-white text-sm"></i>
-              </div>
-              <span className="font-semibold text-foreground">TechPulse</span>
-            </div>
-            
-            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-about">
-                About
-              </a>
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-privacy">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-terms">
-                Terms
-              </a>
-              <a href="#" className="hover:text-foreground transition-colors" data-testid="link-contact">
-                Contact
-              </a>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 TechPulse. All rights reserved. Powered by AI for a smarter tech news experience.</p>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }

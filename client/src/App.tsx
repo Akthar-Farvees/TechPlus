@@ -11,10 +11,11 @@ import Bookmarks from "@/pages/bookmarks";
 import Analytics from "@/pages/analytics";
 
 function Router() {
-  // Authentication removed - show news feed directly as home page
+  // Landing page as entry point, redirects to news feed
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Landing} />
+      <Route path="/news" component={Home} />
       <Route path="/bookmarks" component={Bookmarks} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/article/:id" component={Home} />

@@ -8,6 +8,15 @@ TechPulse is a modern, mobile-first tech news aggregator that centralizes trendi
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (August 2025)
+
+### Landing Page Implementation
+- Restored landing page as entry point (`/`) with auto-redirect to news feed (`/news`)
+- Landing page features hero section, feature highlights, and 3-second auto-redirect
+- News feed now accessible at `/news` route instead of root
+- Header logo now links back to news feed for easy navigation
+- Maintains seamless user experience while providing proper landing page introduction
+
 ## System Architecture
 
 ### Frontend Architecture
