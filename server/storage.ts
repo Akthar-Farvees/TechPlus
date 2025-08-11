@@ -171,7 +171,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(sources, eq(articles.sourceId, sources.id))
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .orderBy(desc(articles.publishedAt))
-      .limit(params.limit)
+      .limit(params.limit || 20)
       .offset(offset);
 
     const results = await query;

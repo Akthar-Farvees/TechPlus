@@ -5,20 +5,19 @@ import { storage } from "./storage";
 import { aiService } from "./services/aiService";
 import { newsService } from "./services/newsService";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { setupGoogleAuth, isAuthenticatedGoogle } from "./googleAuth";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware - Using Google Auth instead of Replit Auth
-  await setupGoogleAuth(app);
+  // Auth middleware - Using Replit Auth
+  await setupAuth(app);
 
   // Start news processing
   newsService.startPeriodicUpdate();
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticatedGoogle, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -87,9 +86,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bookmarks routes
-  app.get('/api/bookmarks', isAuthenticatedGoogle, async (req: any, res) => {
+  app.get('/api/bookmarks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const bookmarks = await storage.getBookmarks(userId);
       res.json(bookmarks);
     } catch (error) {
@@ -98,9 +97,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/bookmarks', isAuthenticatedGoogle, async (req: any, res) => {
+  app.post('/api/bookmarks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleId } = req.body;
 
       if (!articleId) {
@@ -121,9 +120,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/bookmarks/:articleId', isAuthenticatedGoogle, async (req: any, res) => {
+  app.delete('/api/bookmarks/:articleId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleId } = req.params;
 
       await storage.deleteBookmark(userId, articleId);
@@ -135,9 +134,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Chat routes
-  app.post('/api/chat/summarize', isAuthenticatedGoogle, async (req: any, res) => {
+  app.post('/api/chat/summarize', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleId, mode = 'medium' } = req.body;
 
       if (!articleId) {
@@ -157,9 +156,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/message', isAuthenticatedGoogle, async (req: any, res) => {
+  app.post('/api/chat/message', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleId, message } = req.body;
 
       if (!articleId || !message) {
@@ -183,9 +182,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/:articleId/history', isAuthenticatedGoogle, async (req: any, res) => {
+  app.get('/api/chat/:articleId/history', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleId } = req.params;
 
       const history = await aiService.getChatHistory(userId, articleId);
@@ -196,9 +195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/compare', isAuthenticatedGoogle, async (req: any, res) => {
+  app.post('/api/chat/compare', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { articleIds } = req.body;
 
       if (!Array.isArray(articleIds) || articleIds.length < 2) {

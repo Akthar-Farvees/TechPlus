@@ -197,6 +197,14 @@ export const insertUserSchema = createInsertSchema(users).pick({
   profileImageUrl: true,
 });
 
+export const upsertUserSchema = createInsertSchema(users).pick({
+  id: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+  profileImageUrl: true,
+});
+
 export const insertSourceSchema = createInsertSchema(sources).omit({
   id: true,
   createdAt: true,
@@ -226,7 +234,7 @@ export const insertTrendingRecordSchema = createInsertSchema(trendingRecords).om
 });
 
 // Types
-export type UpsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Source = typeof sources.$inferSelect;
 export type InsertSource = z.infer<typeof insertSourceSchema>;
