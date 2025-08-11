@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -23,7 +23,7 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
   const queryClient = useQueryClient();
 
   const { data: fullArticle, isLoading } = useQuery({
-    queryKey: ['/api/articles', article?.id],
+    queryKey: [`/api/articles/${article?.id}`],
     enabled: !!article?.id && isOpen,
     retry: 1,
   });
@@ -150,7 +150,10 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden" data-testid="modal-article">
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden mobile-safe-padding" data-testid="modal-article">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{currentArticle.title}</DialogTitle>
+        </DialogHeader>
         {/* Header */}
         <div className="p-6 border-b border-border bg-card">
           <div className="flex items-start justify-between">
@@ -162,7 +165,7 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
                 <span>•</span>
                 <span data-testid="text-modal-time">{getTimeAgo()}</span>
                 <Badge className={`text-xs ${getCategoryColor()}`} data-testid="badge-modal-category">
-                  {currentArticle.category.replace('_', '/')}
+                  {currentArticle.category ? currentArticle.category.replace('_', '/') : 'others'}
                 </Badge>
                 {currentArticle.sentiment && (
                   <span className={`flex items-center text-sm ${getSentimentColor()}`} data-testid="text-modal-sentiment">

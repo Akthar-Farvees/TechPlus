@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { aiService } from "./services/aiService";
 import { newsService } from "./services/newsService";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupGoogleAuth, isAuthenticatedGoogle } from "./googleAuth";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
