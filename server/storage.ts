@@ -22,7 +22,7 @@ import {
   type InsertTrendingRecord,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql, like, inArray, gte, lte } from "drizzle-orm";
+import { eq, desc, and, or, sql, like, inArray, gte, lte, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -268,6 +268,140 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(bookmarks.userId, userId), eq(bookmarks.articleId, articleId)));
     
     return result.count > 0;
+  }
+
+  // Analytics operations
+  async getAnalytics(startDate: Date) {
+    try {
+      // Get article stats
+      const [totalArticles] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(articles);
+
+      const [articlesThisWeek] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(articles)
+        .where(gte(articles.publishedAt, startDate));
+
+      // Get category stats
+      const categoryResults = await db
+        .select({
+          category: articles.category,
+          count: sql<number>`count(*)`
+        })
+        .from(articles)
+        .where(gte(articles.publishedAt, startDate))
+        .groupBy(articles.category);
+
+      const categoryStats: Record<string, number> = {};
+      categoryResults.forEach(row => {
+        categoryStats[row.category || 'others'] = row.count;
+      });
+
+      // Get source stats
+      const sourceResults = await db
+        .select({
+          name: sources.name,
+          count: sql<number>`count(*)`
+        })
+        .from(articles)
+        .innerJoin(sources, eq(articles.sourceId, sources.id))
+        .where(gte(articles.publishedAt, startDate))
+        .groupBy(sources.name);
+
+      const sourceStats: Record<string, number> = {};
+      sourceResults.forEach(row => {
+        sourceStats[row.name || 'Unknown'] = row.count;
+      });
+
+      // Get sentiment stats
+      const sentimentResults = await db
+        .select({
+          sentiment: articles.sentiment,
+          count: sql<number>`count(*)`
+        })
+        .from(articles)
+        .where(and(
+          gte(articles.publishedAt, startDate),
+          isNotNull(articles.sentiment)
+        ))
+        .groupBy(articles.sentiment);
+
+      const sentimentStats: Record<string, number> = {};
+      sentimentResults.forEach(row => {
+        if (row.sentiment) {
+          sentimentStats[row.sentiment] = row.count;
+        }
+      });
+
+      // Get trending topics from trendingRecords
+      const trendingResults = await db
+        .select()
+        .from(trendingRecords)
+        .orderBy(desc(trendingRecords.growthRate))
+        .limit(20);
+
+      const trendingTopics = trendingResults.map(row => ({
+        topic: row.topic,
+        count: row.mentions,
+        sentiment: 'neutral',
+        category: row.category || 'others',
+        lastMentioned: row.date?.toISOString() || new Date().toISOString(),
+        growth: row.growthRate || 0,
+      }));
+
+      // Get view stats
+      const [totalViews] = await db
+        .select({ sum: sql<number>`coalesce(sum(${articles.viewCount}), 0)` })
+        .from(articles);
+
+      const topArticlesResults = await db
+        .select({
+          title: articles.title,
+          views: articles.viewCount,
+          sourceName: sources.name,
+          publishedAt: articles.publishedAt,
+        })
+        .from(articles)
+        .leftJoin(sources, eq(articles.sourceId, sources.id))
+        .where(gte(articles.publishedAt, startDate))
+        .orderBy(desc(articles.viewCount))
+        .limit(5);
+
+      const topArticles = topArticlesResults.map(row => ({
+        title: row.title,
+        views: row.views,
+        source: row.sourceName || 'Unknown',
+        publishedAt: row.publishedAt?.toISOString() || new Date().toISOString(),
+      }));
+
+      return {
+        totalArticles: totalArticles.count,
+        articlesThisWeek: articlesThisWeek.count,
+        trendingTopics,
+        categoryStats,
+        sourceStats,
+        sentimentStats,
+        viewStats: {
+          totalViews: totalViews.sum,
+          topArticles,
+        },
+      };
+    } catch (error) {
+      console.error('Error in getAnalytics:', error);
+      return {
+        totalArticles: 0,
+        articlesThisWeek: 0,
+        trendingTopics: [],
+        categoryStats: {},
+        sourceStats: {},
+        sentimentStats: {},
+        viewStats: {
+          totalViews: 0,
+          topArticles: [],
+        },
+      };
+    }
   }
 
   // Chat operations

@@ -28,6 +28,9 @@ export default function Home() {
   const { data: articles = [], isLoading: articlesLoading } = useQuery({
     queryKey: ['/api/articles', filters],
     retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 30000, // 30 seconds
   }) as { data: ArticleWithSource[], isLoading: boolean };
 
   const handleFilterChange = (newFilters: Partial<SearchFilters>) => {
@@ -101,7 +104,12 @@ export default function Home() {
               onArticleSelect={handleArticleSelect}
               onLoadMore={() => {
                 const nextPage = (filters.page || 1) + 1;
-                setFilters(prev => ({ ...prev, page: nextPage }));
+                setFilters(prev => ({ 
+                  ...prev, 
+                  page: nextPage,
+                  // Prevent scroll during load more
+                  _preventScroll: true 
+                }));
               }}
               filters={filters}
             />

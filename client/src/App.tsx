@@ -7,15 +7,16 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
+import Bookmarks from "@/pages/bookmarks";
+import Analytics from "@/pages/analytics";
 
 function Router() {
-  // Authentication removed - show Landing page by default, Home for app routes
+  // Authentication removed - show news feed directly as home page
   return (
     <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/app" component={Home} />
-      <Route path="/app/*" component={Home} />
-      <Route path="/bookmarks" component={Home} />
+      <Route path="/" component={Home} />
+      <Route path="/bookmarks" component={Bookmarks} />
+      <Route path="/analytics" component={Analytics} />
       <Route path="/article/:id" component={Home} />
       <Route component={NotFound} />
     </Switch>

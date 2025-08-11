@@ -83,11 +83,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bookmarks routes - now public, no user tracking
+  // Bookmarks routes - enabled for local storage simulation
   app.get('/api/bookmarks', async (req: any, res) => {
     try {
-      // Return empty bookmarks for guest users
-      res.json([]);
+      // For demo purposes, return sample bookmarked articles
+      const sampleBookmarks = await storage.getArticles({
+        category: 'all',
+        timeRange: 'week',
+        page: 1,
+        limit: 10
+      });
+      
+      // Return first 3 articles as "bookmarked" for demo
+      const bookmarkedArticles = sampleBookmarks.slice(0, 3).map(article => ({
+        ...article,
+        isBookmarked: true
+      }));
+      
+      res.json(bookmarkedArticles);
     } catch (error) {
       console.error("Error fetching bookmarks:", error);
       res.status(500).json({ message: "Failed to fetch bookmarks" });
@@ -96,8 +109,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/bookmarks', async (req: any, res) => {
     try {
-      // Bookmarks disabled for guest users
-      res.status(200).json({ message: "Bookmark feature disabled in guest mode" });
+      // Simulate bookmark creation
+      const { articleId } = req.body;
+      res.status(200).json({ message: "Article bookmarked successfully" });
     } catch (error) {
       console.error("Error creating bookmark:", error);
       res.status(500).json({ message: "Failed to create bookmark" });
@@ -106,11 +120,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/bookmarks/:articleId', async (req: any, res) => {
     try {
-      // Bookmarks disabled for guest users
-      res.status(200).json({ message: "Bookmark feature disabled in guest mode" });
+      // Simulate bookmark deletion
+      const { articleId } = req.params;
+      res.status(200).json({ message: "Bookmark removed successfully" });
     } catch (error) {
       console.error("Error deleting bookmark:", error);
       res.status(500).json({ message: "Failed to delete bookmark" });
+    }
+  });
+
+  // Analytics route
+  app.get('/api/analytics', async (req: any, res) => {
+    try {
+      const timeRange = (req.query.timeRange || 'week') as 'today' | 'week' | 'month';
+      
+      // Calculate date range
+      const now = new Date();
+      let startDate = new Date();
+      
+      switch (timeRange) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setDate(now.getDate() - 30);
+          break;
+      }
+
+      // Get analytics data
+      const analytics = await storage.getAnalytics(startDate);
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch analytics data' });
     }
   });
 

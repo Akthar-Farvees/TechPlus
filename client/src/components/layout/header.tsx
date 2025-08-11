@@ -144,17 +144,32 @@ export default function Header({ onSearch, isConnected }: HeaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-lg relative w-8 h-8 sm:w-10 sm:h-10 hidden sm:flex"
+              onClick={() => window.location.href = '/bookmarks'}
+              className="rounded-lg w-8 h-8 sm:w-10 sm:h-10 hidden xs:flex relative"
               data-testid="button-bookmarks"
               aria-label="View bookmarks"
             >
-              <i className="fas fa-bookmark text-muted-foreground text-sm"></i>
+              <i className="fas fa-bookmark text-sm"></i>
               {bookmarks.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-tech-blue text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" data-testid="text-bookmark-count">
-                  {bookmarks.length}
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {bookmarks.length > 99 ? '99+' : bookmarks.length}
                 </span>
               )}
             </Button>
+
+            {/* Analytics - Hidden on smallest screens */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.location.href = '/analytics'}
+              className="rounded-lg w-8 h-8 sm:w-10 sm:h-10 hidden sm:flex"
+              data-testid="button-analytics"
+              aria-label="View analytics"
+            >
+              <i className="fas fa-chart-line text-sm"></i>
+            </Button>
+
+
 
             {/* User Profile - Simplified on mobile */}
             <div className="flex items-center space-x-2">
