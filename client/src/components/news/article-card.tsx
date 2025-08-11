@@ -227,20 +227,20 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
 
   return (
     <article 
-      className="bg-card rounded-xl shadow-sm border border-border p-6 hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-card rounded-xl shadow-sm border border-border p-3 sm:p-6 hover:shadow-md transition-shadow cursor-pointer"
       onClick={onClick}
       data-testid={`card-article-${article.id}`}
     >
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+      <div className="flex space-x-3 sm:space-x-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 sm:mb-3">
+            <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-0">
               <span className="font-medium text-tech-blue" data-testid={`text-source-${article.id}`}>
                 {article.source?.name || 'Unknown Source'}
               </span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span data-testid={`text-time-${article.id}`}>{getTimeAgo()}</span>
-              <Badge className={`text-xs ${getCategoryColor()}`} data-testid={`badge-category-${article.id}`}>
+              <Badge className={`text-xs ${getCategoryColor()} hidden sm:inline-flex`} data-testid={`badge-category-${article.id}`}>
                 {article.category.replace('_', '/')}
               </Badge>
             </div>
@@ -258,20 +258,21 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
             </Button>
           </div>
           
-          <h3 className="text-lg font-bold mb-2 line-clamp-2 text-foreground" data-testid={`text-title-${article.id}`}>
+          <h3 className="text-base sm:text-lg font-bold mb-2 line-clamp-2 text-foreground" data-testid={`text-title-${article.id}`}>
             {article.title}
           </h3>
           
-          <p className="text-muted-foreground mb-4 line-clamp-2" data-testid={`text-snippet-${article.id}`}>
+          <p className="text-muted-foreground mb-3 sm:mb-4 line-clamp-2 text-sm" data-testid={`text-snippet-${article.id}`}>
             {article.snippet || 'No description available.'}
           </p>
           
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {article.sentiment && (
-                <span className={`flex items-center text-sm ${getSentimentColor()}`} data-testid={`text-sentiment-${article.id}`}>
+                <span className={`flex items-center text-xs sm:text-sm ${getSentimentColor()}`} data-testid={`text-sentiment-${article.id}`}>
                   <i className={`${getSentimentIcon()} mr-1`}></i>
-                  {article.sentiment.charAt(0).toUpperCase() + article.sentiment.slice(1)} sentiment
+                  <span className="hidden sm:inline">{article.sentiment.charAt(0).toUpperCase() + article.sentiment.slice(1)} sentiment</span>
+                  <span className="sm:hidden">{article.sentiment}</span>
                 </span>
               )}
               
@@ -279,32 +280,34 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
                 variant="ghost"
                 size="sm"
                 onClick={handleAIChat}
-                className="text-tech-blue hover:text-blue-600 transition-colors"
+                className="text-tech-blue hover:text-blue-600 transition-colors text-xs sm:text-sm h-7 px-2 sm:h-8 sm:px-3"
                 data-testid={`button-ai-chat-${article.id}`}
               >
                 <i className="fas fa-robot mr-1"></i>
-                Ask AI
+                <span className="hidden sm:inline">Ask AI</span>
+                <span className="sm:hidden">AI</span>
               </Button>
             </div>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShare}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              data-testid={`button-share-${article.id}`}
-              aria-label="Share article"
-            >
-              <i className="fas fa-share"></i>
-            </Button>
-          </div>
-          
-          {article.viewCount > 0 && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              <i className="fas fa-eye mr-1"></i>
-              {article.viewCount} views
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              {article.viewCount > 0 && (
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  <i className="fas fa-eye mr-1"></i>
+                  {article.viewCount}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleShare}
+                className="text-muted-foreground hover:text-foreground transition-colors w-7 h-7 sm:w-8 sm:h-8"
+                data-testid={`button-share-${article.id}`}
+                aria-label="Share article"
+              >
+                <i className="fas fa-share text-xs"></i>
+              </Button>
             </div>
-          )}
+          </div>
         </div>
         
         <div className="w-24 h-24">

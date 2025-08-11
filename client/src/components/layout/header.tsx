@@ -24,7 +24,7 @@ export default function Header({ onSearch, isConnected }: HeaderProps) {
   const { data: bookmarks = [] } = useQuery({
     queryKey: ['/api/bookmarks'],
     retry: false,
-  });
+  }) as { data: any[] };
 
   const refreshMutation = useMutation({
     mutationFn: () => apiRequest('POST', '/api/refresh'),
@@ -76,15 +76,15 @@ export default function Header({ onSearch, isConnected }: HeaderProps) {
 
   return (
     <header className="bg-card shadow-sm border-b border-border sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-tech-blue rounded-lg flex items-center justify-center">
-              <i className="fas fa-bolt text-white text-lg"></i>
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-tech-blue rounded-lg flex items-center justify-center">
+              <i className="fas fa-bolt text-white text-sm sm:text-lg"></i>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-foreground">TechPulse</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-foreground">TechPulse</h1>
               {isConnected && (
                 <span className="text-xs text-tech-green flex items-center">
                   <i className="fas fa-circle text-xs mr-1"></i>
@@ -110,97 +110,79 @@ export default function Header({ onSearch, isConnected }: HeaderProps) {
           </div>
 
           {/* User Actions */}
-          <div className="flex items-center space-x-4">
-            {/* Refresh Button */}
+          <div className="flex items-center space-x-1 sm:space-x-4">
+            {/* Theme Toggle - Always visible */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="rounded-lg w-8 h-8 sm:w-10 sm:h-10"
+              data-testid="button-theme-toggle"
+              aria-label="Toggle dark mode"
+            >
+              {theme === 'dark' ? (
+                <i className="fas fa-sun text-yellow-400 text-sm"></i>
+              ) : (
+                <i className="fas fa-moon text-muted-foreground text-sm"></i>
+              )}
+            </Button>
+
+            {/* Refresh Button - Hidden on smallest screens */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => refreshMutation.mutate()}
               disabled={refreshMutation.isPending}
-              className="rounded-lg"
+              className="rounded-lg w-8 h-8 sm:w-10 sm:h-10 hidden xs:flex"
               data-testid="button-refresh"
               aria-label="Refresh news feed"
             >
-              <i className={`fas fa-sync-alt ${refreshMutation.isPending ? 'animate-spin' : ''}`}></i>
+              <i className={`fas fa-sync-alt text-sm ${refreshMutation.isPending ? 'animate-spin' : ''}`}></i>
             </Button>
 
-            {/* Theme Toggle */}
+            {/* Bookmarks - Hidden on smallest screens */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={toggleTheme}
-              className="rounded-lg"
-              data-testid="button-theme-toggle"
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? (
-                <i className="fas fa-sun text-yellow-400"></i>
-              ) : (
-                <i className="fas fa-moon text-muted-foreground"></i>
-              )}
-            </Button>
-
-            {/* Bookmarks */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg relative"
+              className="rounded-lg relative w-8 h-8 sm:w-10 sm:h-10 hidden sm:flex"
               data-testid="button-bookmarks"
               aria-label="View bookmarks"
             >
-              <i className="fas fa-bookmark text-muted-foreground"></i>
+              <i className="fas fa-bookmark text-muted-foreground text-sm"></i>
               {bookmarks.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-tech-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" data-testid="text-bookmark-count">
+                <span className="absolute -top-1 -right-1 bg-tech-blue text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" data-testid="text-bookmark-count">
                   {bookmarks.length}
                 </span>
               )}
             </Button>
 
-            {/* User Profile */}
+            {/* User Profile - Simplified on mobile */}
             <div className="flex items-center space-x-2">
-              {user?.profileImageUrl ? (
-                <img
-                  src={user.profileImageUrl}
-                  alt="User profile"
-                  className="w-8 h-8 rounded-full object-cover"
-                  data-testid="img-user-avatar"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <i className="fas fa-user text-muted-foreground text-sm"></i>
-                </div>
-              )}
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-muted flex items-center justify-center">
+                <i className="fas fa-user text-muted-foreground text-xs"></i>
+              </div>
               
               <div className="hidden md:flex flex-col">
                 <span className="text-sm font-medium text-foreground" data-testid="text-user-name">
-                  {user?.firstName || user?.email || 'User'}
+                  Guest User
                 </span>
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-xs text-muted-foreground p-0 h-auto hover:text-foreground"
-                  data-testid="button-logout"
-                >
-                  Sign out
-                </Button>
               </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Search */}
-        <div className="md:hidden pb-4">
+        <div className="md:hidden pb-3">
           <form onSubmit={handleSearch} className="relative">
             <Input
               type="text"
               placeholder="Search tech news..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 bg-background border-input"
+              className="pl-10 pr-4 bg-background border-input text-sm h-10"
               data-testid="input-search-mobile"
             />
-            <i className="fas fa-search absolute left-3 top-3 text-muted-foreground"></i>
+            <i className="fas fa-search absolute left-3 top-3 text-muted-foreground text-sm"></i>
           </form>
         </div>
       </div>

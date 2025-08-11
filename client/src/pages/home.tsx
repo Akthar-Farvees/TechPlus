@@ -28,7 +28,7 @@ export default function Home() {
   const { data: articles = [], isLoading: articlesLoading } = useQuery({
     queryKey: ['/api/articles', filters],
     retry: 1,
-  });
+  }) as { data: ArticleWithSource[], isLoading: boolean };
 
   const handleFilterChange = (newFilters: Partial<SearchFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
@@ -56,10 +56,10 @@ export default function Home() {
         isConnected={isConnected}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <aside className="lg:col-span-1">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-6">
+          {/* Sidebar - Hidden on mobile, shows as collapsible filters */}
+          <aside className="lg:col-span-1 hidden md:block">
             <Sidebar
               filters={filters}
               onFilterChange={handleFilterChange}
@@ -67,7 +67,34 @@ export default function Home() {
           </aside>
 
           {/* Main Content */}
-          <main className="lg:col-span-2">
+          <main className="lg:col-span-2 md:col-span-1 col-span-1">
+            {/* Mobile Category Filter */}
+            <div className="md:hidden mb-4">
+              <div className="flex overflow-x-auto space-x-2 pb-2 scrollbar-hide">
+                {Object.entries({
+                  all: 'All',
+                  ai_ml: 'AI/ML',
+                  startups: 'Startups',
+                  cybersecurity: 'Security',
+                  mobile: 'Mobile',
+                  web3: 'Web3',
+                  others: 'Others'
+                }).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => handleFilterChange({ category: key })}
+                    className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                      filters.category === key
+                        ? 'bg-tech-blue text-white border-tech-blue'
+                        : 'bg-background text-muted-foreground border-border hover:border-tech-blue/50'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <NewsFeed
               articles={articles}
               isLoading={articlesLoading}
@@ -97,11 +124,11 @@ export default function Home() {
       {/* Floating Mobile Chat Button */}
       <button
         onClick={handleChatToggle}
-        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-tech-blue text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center z-40"
+        className="lg:hidden fixed bottom-4 right-4 w-12 h-12 sm:w-14 sm:h-14 bg-tech-blue text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center z-40"
         data-testid="button-mobile-chat"
         aria-label="Open AI chat"
       >
-        <i className="fas fa-robot text-lg"></i>
+        <i className="fas fa-robot text-base sm:text-lg"></i>
       </button>
 
       {/* Article Modal */}

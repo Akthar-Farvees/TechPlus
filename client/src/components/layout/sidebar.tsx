@@ -14,7 +14,7 @@ export default function Sidebar({ filters, onFilterChange }: SidebarProps) {
   const { data: articles = [] } = useQuery({
     queryKey: ['/api/articles', { limit: 1000 }], // Get all for counting
     retry: 1,
-  });
+  }) as { data: any[] };
 
   // Calculate category counts
   const categoryCounts = articles.reduce((acc: Record<string, number>, article: any) => {

@@ -93,7 +93,32 @@
     font-family: var(--font-sans);
     line-height: 1.6;
   }
+}
 
+/* Mobile-first responsive design improvements */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom breakpoint for extra small devices */
+  @media (min-width: 475px) {
+    .xs\:flex {
+      display: flex;
+    }
+    
+    .xs\:hidden {
+      display: none;
+    }
+  }
+}
+
+@layer base {
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
     line-height: 1.3;
@@ -102,7 +127,9 @@
   p {
     @apply leading-relaxed;
   }
+}
 
+@layer components {
   .tech-gradient {
     background: linear-gradient(135deg, var(--tech-blue) 0%, var(--tech-green) 100%);
   }
