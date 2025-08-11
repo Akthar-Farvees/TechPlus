@@ -45,7 +45,7 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/auth/google";
         }, 500);
         return;
       }
@@ -131,12 +131,19 @@ export default function ArticleCard({ article, onClick, featured = false }: Arti
                 alt={article.title}
                 className="w-full h-48 md:h-full object-cover"
                 data-testid={`img-thumbnail-${article.id}`}
+                onError={(e) => {
+                  // Fallback to default placeholder on error
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
               />
-            ) : (
-              <div className="w-full h-48 md:h-full bg-muted flex items-center justify-center">
-                <i className="fas fa-newspaper text-muted-foreground text-3xl"></i>
+            ) : null}
+            <div className={`w-full h-48 md:h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center ${article.thumbnail ? 'hidden' : ''}`}>
+              <div className="text-center">
+                <i className="fas fa-newspaper text-primary text-4xl mb-2"></i>
+                <div className="text-primary font-medium text-sm">TechPulse</div>
               </div>
-            )}
+            </div>
           </div>
           
           <div className="md:w-2/3 p-6">

@@ -9,16 +9,16 @@ import { setupGoogleAuth, isAuthenticatedGoogle } from "./googleAuth";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware - Using Google Auth instead of Replit Auth
+  await setupGoogleAuth(app);
 
   // Start news processing
   newsService.startPeriodicUpdate();
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -30,7 +30,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Articles routes
   app.get('/api/articles', async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id;
       const { category, timeRange, search, page = 1, limit = 20 } = req.query;
       
       const articles = await storage.getArticles({
@@ -51,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/articles/:id', async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id;
       const { id } = req.params;
       
       const article = await storage.getArticleById(id, userId);
@@ -71,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/search', async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id;
       const { q } = req.query;
       
       if (!q || typeof q !== 'string') {
@@ -87,9 +87,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bookmarks routes
-  app.get('/api/bookmarks', isAuthenticated, async (req: any, res) => {
+  app.get('/api/bookmarks', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const bookmarks = await storage.getBookmarks(userId);
       res.json(bookmarks);
     } catch (error) {
@@ -98,9 +98,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/bookmarks', isAuthenticated, async (req: any, res) => {
+  app.post('/api/bookmarks', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleId } = req.body;
 
       if (!articleId) {
@@ -121,9 +121,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/bookmarks/:articleId', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/bookmarks/:articleId', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleId } = req.params;
 
       await storage.deleteBookmark(userId, articleId);
@@ -135,9 +135,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Chat routes
-  app.post('/api/chat/summarize', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/summarize', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleId, mode = 'medium' } = req.body;
 
       if (!articleId) {
@@ -157,9 +157,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/message', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/message', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleId, message } = req.body;
 
       if (!articleId || !message) {
@@ -183,9 +183,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/:articleId/history', isAuthenticated, async (req: any, res) => {
+  app.get('/api/chat/:articleId/history', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleId } = req.params;
 
       const history = await aiService.getChatHistory(userId, articleId);
@@ -196,9 +196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/compare', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/compare', isAuthenticatedGoogle, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { articleIds } = req.body;
 
       if (!Array.isArray(articleIds) || articleIds.length < 2) {

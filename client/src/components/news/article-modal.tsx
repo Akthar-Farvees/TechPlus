@@ -55,7 +55,7 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/auth/google";
         }, 500);
         return;
       }
@@ -150,12 +150,28 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden mobile-safe-padding" data-testid="modal-article">
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden sm:mobile-safe-padding" data-testid="modal-article">
         <DialogHeader className="sr-only">
           <DialogTitle>{currentArticle.title}</DialogTitle>
         </DialogHeader>
+        {/* Article Image */}
+        {currentArticle.thumbnail && (
+          <div className="w-full h-48 sm:h-64 md:h-72 overflow-hidden bg-muted">
+            <img
+              src={currentArticle.thumbnail}
+              alt={currentArticle.title}
+              className="w-full h-full object-cover"
+              data-testid="img-modal-thumbnail"
+              onError={(e) => {
+                // Hide image on error
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         {/* Header */}
-        <div className="p-6 border-b border-border bg-card">
+        <div className="p-4 sm:p-6 border-b border-border bg-card">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
@@ -187,28 +203,32 @@ export default function ArticleModal({ article, isOpen, onClose, onChatOpen }: A
               )}
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 onClick={() => onChatOpen(currentArticle)}
-                className="text-tech-blue hover:text-blue-600 border-tech-blue hover:bg-tech-blue/10"
+                className="text-primary hover:text-primary-foreground border-primary hover:bg-primary/10 text-xs sm:text-sm touch-manipulation"
                 data-testid="button-modal-chat"
                 aria-label="Chat with AI about this article"
               >
-                <i className="fas fa-robot"></i>
+                <i className="fas fa-robot mr-1 sm:mr-0"></i>
+                <span className="hidden xs:inline sm:hidden md:inline">AI Chat</span>
               </Button>
               
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 onClick={() => bookmarkMutation.mutate()}
                 disabled={bookmarkMutation.isPending}
-                className={`${currentArticle.isBookmarked ? 'text-tech-blue border-tech-blue bg-tech-blue/10' : 'text-muted-foreground'} hover:text-tech-blue hover:border-tech-blue`}
+                className={`${currentArticle.isBookmarked ? 'text-primary border-primary bg-primary/10' : 'text-muted-foreground'} hover:text-primary hover:border-primary text-xs sm:text-sm touch-manipulation`}
                 data-testid="button-modal-bookmark"
                 aria-label={currentArticle.isBookmarked ? "Remove bookmark" : "Add bookmark"}
               >
-                <i className={`${currentArticle.isBookmarked ? 'fas' : 'far'} fa-bookmark`}></i>
+                <i className={`${currentArticle.isBookmarked ? 'fas' : 'far'} fa-bookmark mr-1 sm:mr-0`}></i>
+                <span className="hidden xs:inline sm:hidden md:inline">
+                  {currentArticle.isBookmarked ? 'Saved' : 'Save'}
+                </span>
               </Button>
               
               <Button
