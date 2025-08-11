@@ -4,32 +4,30 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { aiService } from "./services/aiService";
 import { newsService } from "./services/newsService";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+// Authentication removed - open access
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware - Using Replit Auth
-  await setupAuth(app);
+  // Authentication removed - open access app
 
   // Start news processing
   newsService.startPeriodicUpdate();
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
+  // Public routes - no authentication required
+  app.get('/api/auth/user', async (req: any, res) => {
+    // Return a mock user for UI compatibility
+    res.json({ 
+      id: 'guest', 
+      email: 'guest@example.com', 
+      firstName: 'Guest', 
+      lastName: 'User' 
+    });
   });
 
   // Articles routes
   app.get('/api/articles', async (req: any, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = undefined; // No user tracking
       const { category, timeRange, search, page = 1, limit = 20 } = req.query;
       
       const articles = await storage.getArticles({
@@ -50,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/articles/:id', async (req: any, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = undefined; // No user tracking
       const { id } = req.params;
       
       const article = await storage.getArticleById(id, userId);
@@ -70,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/search', async (req: any, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = undefined; // No user tracking
       const { q } = req.query;
       
       if (!q || typeof q !== 'string') {
@@ -85,58 +83,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bookmarks routes
-  app.get('/api/bookmarks', isAuthenticated, async (req: any, res) => {
+  // Bookmarks routes - now public, no user tracking
+  app.get('/api/bookmarks', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const bookmarks = await storage.getBookmarks(userId);
-      res.json(bookmarks);
+      // Return empty bookmarks for guest users
+      res.json([]);
     } catch (error) {
       console.error("Error fetching bookmarks:", error);
       res.status(500).json({ message: "Failed to fetch bookmarks" });
     }
   });
 
-  app.post('/api/bookmarks', isAuthenticated, async (req: any, res) => {
+  app.post('/api/bookmarks', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { articleId } = req.body;
-
-      if (!articleId) {
-        return res.status(400).json({ message: "Article ID is required" });
-      }
-
-      // Check if already bookmarked
-      const isAlreadyBookmarked = await storage.isBookmarked(userId, articleId);
-      if (isAlreadyBookmarked) {
-        return res.status(409).json({ message: "Article already bookmarked" });
-      }
-
-      const bookmark = await storage.createBookmark({ userId, articleId });
-      res.status(201).json(bookmark);
+      // Bookmarks disabled for guest users
+      res.status(200).json({ message: "Bookmark feature disabled in guest mode" });
     } catch (error) {
       console.error("Error creating bookmark:", error);
       res.status(500).json({ message: "Failed to create bookmark" });
     }
   });
 
-  app.delete('/api/bookmarks/:articleId', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/bookmarks/:articleId', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { articleId } = req.params;
-
-      await storage.deleteBookmark(userId, articleId);
-      res.status(204).send();
+      // Bookmarks disabled for guest users
+      res.status(200).json({ message: "Bookmark feature disabled in guest mode" });
     } catch (error) {
       console.error("Error deleting bookmark:", error);
       res.status(500).json({ message: "Failed to delete bookmark" });
     }
   });
 
-  // AI Chat routes
-  app.post('/api/chat/summarize', isAuthenticated, async (req: any, res) => {
+  // AI Chat routes - now public
+  app.post('/api/chat/summarize', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = 'guest'; // Guest user for AI features
       const { articleId, mode = 'medium' } = req.body;
 
       if (!articleId) {
@@ -156,9 +137,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/message', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/message', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = 'guest'; // Guest user for AI features
       const { articleId, message } = req.body;
 
       if (!articleId || !message) {
@@ -182,9 +163,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/:articleId/history', isAuthenticated, async (req: any, res) => {
+  app.get('/api/chat/:articleId/history', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = 'guest'; // Guest user for AI features
       const { articleId } = req.params;
 
       const history = await aiService.getChatHistory(userId, articleId);
@@ -195,9 +176,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chat/compare', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/compare', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = 'guest'; // Guest user for AI features
       const { articleIds } = req.body;
 
       if (!Array.isArray(articleIds) || articleIds.length < 2) {
@@ -236,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Manual refresh route for testing
-  app.post('/api/refresh', isAuthenticated, async (req: any, res) => {
+  app.post('/api/refresh', async (req: any, res) => {
     try {
       await newsService.processNewArticles();
       res.json({ message: "News refresh completed" });

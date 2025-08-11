@@ -5,8 +5,8 @@ import { useTheme } from "@/hooks/useTheme";
 export default function Landing() {
   const { theme, toggleTheme } = useTheme();
 
-  const handleLogin = () => {
-    window.location.href = "/api/auth/google";
+  const handleGetStarted = () => {
+    window.location.href = "/app";
   };
 
   return (
@@ -38,7 +38,7 @@ export default function Landing() {
                 )}
               </Button>
               
-              <Button onClick={handleLogin} data-testid="button-login">
+              <Button onClick={handleGetStarted} data-testid="button-get-started">
                 Get Started
               </Button>
             </div>
@@ -64,7 +64,7 @@ export default function Landing() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" onClick={handleLogin} className="px-8 py-3" data-testid="button-hero-login">
+              <Button size="lg" onClick={handleGetStarted} className="px-8 py-3" data-testid="button-hero-get-started">
                 <i className="fas fa-rocket mr-2"></i>
                 Start Exploring
               </Button>
