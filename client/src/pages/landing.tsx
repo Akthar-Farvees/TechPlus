@@ -195,7 +195,7 @@ export default function Landing() {
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Join thousands of tech professionals who stay informed with AI-powered insights.
               </p>
-              <Button size="lg" onClick={handleLogin} className="px-8 py-3" data-testid="button-cta-login">
+              <Button size="lg" onClick={handleGetStarted} className="px-8 py-3" data-testid="button-cta-get-started">
                 <i className="fas fa-bolt mr-2"></i>
                 Get Started Now
               </Button>
